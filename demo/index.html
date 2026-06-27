@@ -83,7 +83,25 @@
   </header>
 
   <div class="config-section">
-    <h2>Panel configuration</h2>
+    <h2>Company context <span style="font-size:0.75rem;text-transform:none;letter-spacing:0;color:var(--muted)">(optional — helps agents frame their response to your situation)</span></h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem">
+      <input id="ctx-name" placeholder="Company name" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit">
+      <select id="ctx-stage" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit">
+        <option value="">Stage...</option>
+        <option>Idea / pre-product</option>
+        <option>Pre-seed</option>
+        <option>Seed</option>
+        <option>Series A</option>
+        <option>Series B</option>
+        <option>Growth / scaleup</option>
+        <option>Established</option>
+      </select>
+      <input id="ctx-size" placeholder="Team size (e.g. 12)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit">
+      <input id="ctx-market" placeholder="Market / industry (e.g. B2B SaaS, Finland)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit">
+      <input id="ctx-desc" placeholder="What you do (one line)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit;grid-column:span 2">
+      <input id="ctx-challenge" placeholder="Key challenge or question you're facing" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.9rem;font-family:inherit;grid-column:span 2">
+    </div>
+    <h2>Expert panel</h2>
     <div class="agent-pills" id="agent-pills"></div>
     <h2>Reference documents <span style="font-size:0.75rem;text-transform:none;letter-spacing:0;color:var(--muted)">(optional — PDF, DOCX, TXT)</span></h2>
     <div id="upload-area" style="border:2px dashed var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;text-align:center;color:var(--muted);cursor:pointer;transition:border-color 0.15s" onclick="document.getElementById('file-input').click()">
@@ -102,7 +120,7 @@
           <option value="What are the fundamental tradeoffs between energy density, cycle life, and safety in lithium-ion battery chemistries, and what do operations researchers say about which tradeoffs matter most at grid scale?">Energy + OR</option>
         </select>
       </div>
-      <button class="run-btn" id="run-btn" onclick="runPanel()" disabled>Run panel →</button>
+      <button class="run-btn" id="run-btn" onclick="runPanel()" disabled>Ask expert →</button>
     </div>
   </div>
 
@@ -112,7 +130,8 @@
 
   <div class="synthesis-section hidden" id="synthesis-section">
     <div class="synth-tabs">
-      <div class="synth-tab active" onclick="switchTab('conflicts')">Conflicts</div>
+      <div class="synth-tab active" onclick="switchTab('recommendations')">Action points</div>
+      <div class="synth-tab" onclick="switchTab('conflicts')">Conflicts</div>
       <div class="synth-tab" onclick="switchTab('agreements')">Agreements</div>
       <div class="synth-tab" onclick="switchTab('gaps')">Novelty gaps</div>
       <div class="synth-tab" onclick="switchTab('narrative')">Narrative</div>
@@ -167,7 +186,9 @@ function renderPills() {
 function toggleAgent(domain, pill) {
   if (selected.has(domain)) { selected.delete(domain); pill.classList.remove('selected'); }
   else if (selected.size < 4) { selected.add(domain); pill.classList.add('selected'); }
-  document.getElementById('run-btn').disabled = selected.size < 2;
+  const btn = document.getElementById('run-btn');
+  btn.disabled = selected.size < 1;
+  btn.textContent = selected.size <= 1 ? 'Ask expert →' : 'Run panel →';
 }
 
 function loadExample() {
@@ -175,16 +196,31 @@ function loadExample() {
   if (v) document.getElementById('question').value = v;
 }
 
+function getCompanyContext() {
+  const ctx = {
+    company_name: document.getElementById('ctx-name').value.trim(),
+    stage: document.getElementById('ctx-stage').value,
+    team_size: document.getElementById('ctx-size').value.trim(),
+    market: document.getElementById('ctx-market').value.trim(),
+    description: document.getElementById('ctx-desc').value.trim(),
+    key_challenge: document.getElementById('ctx-challenge').value.trim(),
+  };
+  return Object.values(ctx).some(v => v) ? ctx : {};
+}
+
 async function runPanel() {
   const q = document.getElementById('question').value.trim();
-  if (!q || selected.size < 2) return;
+  if (!q || selected.size < 1) return;
 
   const btn = document.getElementById('run-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Running...';
 
+  const loadingMsg = selected.size === 1
+    ? '<div class="loading"><span class="spinner"></span> Expert is researching your question... this takes 20–40 seconds.</div>'
+    : '<div class="loading"><span class="spinner"></span> Panel is debating your question... this takes 30–90 seconds.</div>';
   document.getElementById('transcript').classList.remove('hidden');
-  document.getElementById('turns').innerHTML = '<div class="loading"><span class="spinner"></span> Panel is debating your question... this takes 30–90 seconds.</div>';
+  document.getElementById('turns').innerHTML = loadingMsg;
   document.getElementById('synthesis-section').classList.add('hidden');
   document.getElementById('meta-bar').classList.add('hidden');
 
@@ -192,7 +228,7 @@ async function runPanel() {
     const r = await fetch(`${API}/api/panels/run`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({question: q, domains: [...selected], turns_per_agent: 2, document_ids: uploadedDocs.map(d => d.id)}),
+      body: JSON.stringify({question: q, domains: [...selected], turns_per_agent: 2, document_ids: uploadedDocs.map(d => d.id), company_context: getCompanyContext()}),
     });
     if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'API error'); }
     const data = await r.json();
@@ -202,7 +238,7 @@ async function runPanel() {
   }
 
   btn.disabled = false;
-  btn.textContent = 'Run panel →';
+  btn.textContent = selected.size <= 1 ? 'Ask expert →' : 'Run panel →';
 }
 
 function renderResult(data) {
@@ -230,7 +266,7 @@ function renderResult(data) {
 
   synthData = data.synthesis;
   document.getElementById('synthesis-section').classList.remove('hidden');
-  switchTab('conflicts');
+  switchTab('recommendations');
 
   const m = data.meta;
   document.getElementById('meta-bar').classList.remove('hidden');
@@ -243,11 +279,25 @@ function renderResult(data) {
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.synth-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.synth-tab')[['conflicts','agreements','gaps','narrative'].indexOf(tab)].classList.add('active');
+  document.querySelectorAll('.synth-tab')[['recommendations','conflicts','agreements','gaps','narrative'].indexOf(tab)].classList.add('active');
   const el = document.getElementById('synth-content');
 
   if (tab === 'narrative') {
     el.innerHTML = `<div style="font-size:0.92rem">${esc(synthData.narrative || 'No narrative generated.')}</div>`;
+  } else if (tab === 'recommendations') {
+    const items = synthData.recommendations || [];
+    if (!items.length) { el.innerHTML = '<div style="color:var(--muted)">No action points generated.</div>'; return; }
+    const priorityColor = {high:'#ef4444', medium:'#f59e0b', low:'#6b7280'};
+    el.innerHTML = items.map((item, i) => {
+      const p = (item.priority || 'medium').toLowerCase();
+      return `<div class="synth-item" style="border-left-color:${priorityColor[p]||'#6b7280'}">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem">
+          <span style="font-weight:600;font-size:0.95rem">${i+1}. ${esc(item.action || '')}</span>
+          <span style="font-size:0.72rem;padding:0.15rem 0.4rem;border-radius:4px;background:${priorityColor[p]||'#6b7280'}22;color:${priorityColor[p]||'#6b7280'}">${p}</span>
+        </div>
+        ${item.rationale ? `<div style="color:var(--muted);font-size:0.88rem">${esc(item.rationale)}</div>` : ''}
+      </div>`;
+    }).join('');
   } else {
     const key = tab === 'gaps' ? 'novelty_gaps' : tab;
     const items = synthData[key] || [];

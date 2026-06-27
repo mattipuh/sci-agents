@@ -51,12 +51,12 @@ class PanelComposer:
             for agent in agents:
                 turn_number += 1
                 log.info("Round %d: %s responding", round_num, agent.display_name)
-                agent_turn = agent.respond(config.question, all_agent_turns, reference_docs=config.reference_docs)
+                agent_turn = agent.respond(config.question, all_agent_turns, reference_docs=config.reference_docs, company_context=config.company_context)
                 all_agent_turns.append(agent_turn)
 
                 moderator = None
                 mod_usage = {}
-                if len(all_agent_turns) >= 2:
+                if len(config.domains) > 1 and len(all_agent_turns) >= 2:
                     moderator, mod_usage = run_moderator(
                         self.client, config.question, all_agent_turns[-2:]
                     )

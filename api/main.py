@@ -34,9 +34,10 @@ def get_client() -> anthropic.Anthropic:
 
 class PanelRunRequest(BaseModel):
     question: str = Field(..., min_length=20, max_length=500)
-    domains: list[str] = Field(..., min_length=2, max_length=4)
+    domains: list[str] = Field(..., min_length=1, max_length=4)
     turns_per_agent: int = Field(default=2, ge=1, le=3)
     document_ids: list[str] = Field(default_factory=list)
+    company_context: dict = Field(default_factory=dict)
 
 
 class CitedPaper(BaseModel):
@@ -61,6 +62,7 @@ class SynthesisResponse(BaseModel):
     agreements: list[dict]
     conflicts: list[dict]
     novelty_gaps: list[dict]
+    recommendations: list[dict]
     narrative: str
     bibliography: list[CitedPaper]
 
@@ -128,6 +130,7 @@ def run_panel(req: PanelRunRequest):
         domains=req.domains,
         turns_per_agent=req.turns_per_agent,
         reference_docs=ref_docs,
+        company_context=req.company_context,
     )
 
     start = time.time()
@@ -154,6 +157,7 @@ def run_panel(req: PanelRunRequest):
         agreements=result.synthesis.agreements,
         conflicts=result.synthesis.conflicts,
         novelty_gaps=result.synthesis.novelty_gaps,
+        recommendations=result.synthesis.recommendations,
         narrative=result.synthesis.narrative,
         bibliography=[CitedPaper(**c) for c in result.synthesis.all_citations],
     )

@@ -82,7 +82,7 @@ class DomainAgent:
         overlay = domain_file.read_text() if domain_file.exists() else ""
         return f"{base}\n\n{overlay}"
 
-    def respond(self, question: str, prior_turns: list[AgentTurn], reference_docs: list[dict] | None = None) -> AgentTurn:
+    def respond(self, question: str, prior_turns: list[AgentTurn], reference_docs: list[dict] | None = None, company_context: dict | None = None) -> AgentTurn:
         scope = DOMAIN_SEARCH_SCOPES.get(self.domain, "site:arxiv.org")
 
         prior_context = ""
@@ -92,6 +92,24 @@ class DomainAgent:
                 cites = ", ".join(c.get("title", "")[:50] for c in t.citations[:2])
                 prior_context += f"\n[{t.agent_name}]: {t.content[:400]}...\n  (cited: {cites})\n"
 
+        company_context_str = ""
+        if company_context:
+            parts = []
+            if company_context.get("company_name"):
+                parts.append(f"Company: {company_context['company_name']}")
+            if company_context.get("stage"):
+                parts.append(f"Stage: {company_context['stage']}")
+            if company_context.get("team_size"):
+                parts.append(f"Team size: {company_context['team_size']}")
+            if company_context.get("market"):
+                parts.append(f"Market/Industry: {company_context['market']}")
+            if company_context.get("description"):
+                parts.append(f"What they do: {company_context['description']}")
+            if company_context.get("key_challenge"):
+                parts.append(f"Key challenge: {company_context['key_challenge']}")
+            if parts:
+                company_context_str = "\n\nCompany context (frame your response relative to this organisation):\n" + "\n".join(parts)
+
         docs_context = ""
         if reference_docs:
             docs_context = "\n\nReference documents provided by the user (use these as additional context alongside your literature search):\n"
@@ -100,7 +118,7 @@ class DomainAgent:
                 docs_context += f"\n--- {doc['filename']} ---\n{text}\n"
 
         user_message = f"""Research question: {question}
-{prior_context}{docs_context}
+{prior_context}{company_context_str}{docs_context}
 
 Search for relevant literature using the web search tool (scoped to {self.domain} literature: {scope}).
 Then provide your expert response.

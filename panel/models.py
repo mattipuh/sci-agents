@@ -22,6 +22,7 @@ class Synthesis:
     agreements: list[dict]
     conflicts: list[dict]
     novelty_gaps: list[dict]
+    recommendations: list[dict]
     narrative: str
     all_citations: list[dict]
 
@@ -32,6 +33,7 @@ class PanelConfig:
     domains: list[str]
     turns_per_agent: int = 2
     reference_docs: list[dict] = field(default_factory=list)
+    company_context: dict = field(default_factory=dict)
 
 
 @dataclass

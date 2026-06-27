@@ -45,5 +45,13 @@ ENV/
 # macOS
 .DS_Store
 
+# Word temp / lock files
+~$*
+
+# Demo output artefacts
+demo/*.pdf
+demo/*.docx
+*.docx
+
 # Docker
 *.env.local

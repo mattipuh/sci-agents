@@ -22,10 +22,14 @@ Your output MUST be valid JSON matching this schema exactly:
   "novelty_gaps": [
     {"description": "...", "why_unresolved": "..."}
   ],
+  "recommendations": [
+    {"action": "concrete next step the user should take", "rationale": "why this follows from the debate", "priority": "high|medium|low"}
+  ],
   "narrative": "300-500 word prose integrating the debate findings"
 }
 
-Be specific. Reference specific claims from specific agents. Do not generalise."""
+For recommendations: produce 3-5 specific, actionable steps the user can act on immediately. Ground each in what the agents actually argued. Order by priority. Do not generalise.
+Be specific throughout. Reference specific claims from specific agents."""
 
 
 def run_synthesis(
@@ -73,6 +77,7 @@ def run_synthesis(
         agreements=parsed.get("agreements", []),
         conflicts=parsed.get("conflicts", []),
         novelty_gaps=parsed.get("novelty_gaps", []),
+        recommendations=parsed.get("recommendations", []),
         narrative=parsed.get("narrative", ""),
         all_citations=all_citations,
     ), usage
