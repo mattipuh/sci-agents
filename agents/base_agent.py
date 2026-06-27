@@ -12,6 +12,8 @@ AVAILABLE_DOMAINS = [
     "mathematics", "ops_research", "finance", "engineering",
     "strategy_game_theory", "lean_process", "business_economics",
     "ai_ml_systems", "solution_architecture",
+    "entrepreneurship_validation", "consumer_market_research", "gtm_growth",
+    "org_scaling", "venture_finance", "platform_business_model",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -24,6 +26,12 @@ AGENT_DISPLAY_NAMES = {
     "business_economics": "Prof. Salminen (Business & Organizational Economics)",
     "ai_ml_systems": "Dr. Korhonen (AI/ML Systems)",
     "solution_architecture": "Prof. Nieminen (Solution Architecture)",
+    "entrepreneurship_validation": "Prof. Mäkinen (Entrepreneurship & Validation)",
+    "consumer_market_research": "Dr. Heikkinen (Consumer & Market Research)",
+    "gtm_growth": "Prof. Leinonen (GTM & Growth)",
+    "org_scaling": "Dr. Hämäläinen (Organizational Scaling)",
+    "venture_finance": "Prof. Karjalainen (Venture Finance)",
+    "platform_business_model": "Dr. Väisänen (Platform & Business Model)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -36,6 +44,12 @@ DOMAIN_SEARCH_SCOPES = {
     "business_economics": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
     "ai_ml_systems": "site:arxiv.org/abs/cs.LG OR site:arxiv.org/abs/cs.AI OR site:arxiv.org/abs/cs.SE",
     "solution_architecture": "site:arxiv.org/abs/cs.SE OR site:ieeexplore.ieee.org OR site:acm.org",
+    "entrepreneurship_validation": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
+    "consumer_market_research": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
+    "gtm_growth": "site:ssrn.com OR site:nber.org OR site:hbswk.hbs.edu",
+    "org_scaling": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
+    "venture_finance": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/q-fin",
+    "platform_business_model": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
