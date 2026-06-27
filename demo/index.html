@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciAgent — Cross-Domain Scientific Panel</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --border: #2a2d3a;
+    --text: #e4e4e7; --muted: #71717a; --accent: #3b82f6;
+    --mathematics: #1D9E75; --ops_research: #534AB7;
+    --finance: #B8860B; --engineering: #993C1D;
+    --strategy_game_theory: #7C3AED; --lean_process: #0891B2; --business_economics: #C2410C;
+    --ai_ml_systems: #0D9488; --solution_architecture: #6366F1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  header h1 { font-size: 1.4rem; font-weight: 600; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  .status { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+  .status.error .dot { background: #ef4444; }
+
+  .config-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .config-section h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 1rem; }
+
+  .agent-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .agent-pill { padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+  .agent-pill:hover { border-color: var(--muted); }
+  .agent-pill.selected { border-color: var(--pill-color, var(--accent)); background: color-mix(in srgb, var(--pill-color, var(--accent)) 15%, transparent); }
+
+  textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); font-size: 0.95rem; resize: vertical; min-height: 80px; font-family: inherit; }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+  .examples { position: relative; }
+  .examples select { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; color: var(--muted); font-size: 0.85rem; cursor: pointer; }
+  .run-btn { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.6rem 1.5rem; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .run-btn:hover { opacity: 0.9; }
+  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .transcript { margin-top: 2rem; }
+
+  .turn-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; border-left: 4px solid var(--turn-color, var(--border)); }
+  .turn-header { padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .turn-header .name { font-weight: 600; font-size: 0.95rem; }
+  .turn-header .meta { font-size: 0.8rem; color: var(--muted); }
+  .turn-body { padding: 1rem; font-size: 0.92rem; }
+  .turn-body p { margin-bottom: 0.5rem; }
+  .turn-footer { padding: 0.5rem 1rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); }
+
+  .moderator-divider { text-align: center; padding: 0.75rem; margin: 0.5rem 0; }
+  .moderator-divider .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #eab308; font-weight: 600; }
+  .moderator-divider .text { font-style: italic; color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+
+  .synthesis-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-top: 2rem; overflow: hidden; }
+  .synth-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .synth-tab { flex: 1; padding: 0.7rem; text-align: center; font-size: 0.85rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .synth-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .synth-content { padding: 1.5rem; min-height: 120px; }
+  .synth-item { margin-bottom: 1rem; padding-left: 1rem; border-left: 2px solid var(--border); font-size: 0.92rem; }
+
+  .meta-bar { margin-top: 1.5rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; gap: 2rem; font-size: 0.8rem; color: var(--muted); }
+
+  .loading { text-align: center; padding: 2rem; color: var(--muted); }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>SciAgent <span>cross-domain scientific panel</span></h1>
+    <div class="status" id="status"><span class="dot"></span> <span id="status-text">Connecting...</span></div>
+  </header>
+
+  <div class="config-section">
+    <h2>Panel configuration</h2>
+    <div class="agent-pills" id="agent-pills"></div>
+    <h2>Reference documents <span style="font-size:0.75rem;text-transform:none;letter-spacing:0;color:var(--muted)">(optional — PDF, DOCX, TXT)</span></h2>
+    <div id="upload-area" style="border:2px dashed var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;text-align:center;color:var(--muted);cursor:pointer;transition:border-color 0.15s" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" style="display:none" onchange="handleFiles(this.files)">
+      Drop files here or click to upload
+    </div>
+    <div id="uploaded-docs" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem"></div>
+    <h2>Research question</h2>
+    <textarea id="question" placeholder="Enter a cross-domain research question..."></textarea>
+    <div class="controls">
+      <div class="examples">
+        <select id="examples" onchange="loadExample()">
+          <option value="">Try an example...</option>
+          <option value="What scheduling approaches minimise makespan in a job shop with stochastic processing times, and what are the practical barriers to implementing the theoretically optimal solution?">Manufacturing + Maths</option>
+          <option value="What does the academic literature say about the gap between regulatory compliance frameworks and actual operational risk reduction in financial institutions?">Finance + Regulation</option>
+          <option value="What are the fundamental tradeoffs between energy density, cycle life, and safety in lithium-ion battery chemistries, and what do operations researchers say about which tradeoffs matter most at grid scale?">Energy + OR</option>
+        </select>
+      </div>
+      <button class="run-btn" id="run-btn" onclick="runPanel()" disabled>Run panel →</button>
+    </div>
+  </div>
+
+  <div class="transcript hidden" id="transcript">
+    <div id="turns"></div>
+  </div>
+
+  <div class="synthesis-section hidden" id="synthesis-section">
+    <div class="synth-tabs">
+      <div class="synth-tab active" onclick="switchTab('conflicts')">Conflicts</div>
+      <div class="synth-tab" onclick="switchTab('agreements')">Agreements</div>
+      <div class="synth-tab" onclick="switchTab('gaps')">Novelty gaps</div>
+      <div class="synth-tab" onclick="switchTab('narrative')">Narrative</div>
+    </div>
+    <div class="synth-content" id="synth-content"></div>
+  </div>
+
+  <div class="meta-bar hidden" id="meta-bar"></div>
+</div>
+
+<script>
+const API = location.origin;
+const COLORS = {mathematics:'#1D9E75', ops_research:'#534AB7', finance:'#B8860B', engineering:'#993C1D', strategy_game_theory:'#7C3AED', lean_process:'#0891B2', business_economics:'#C2410C', ai_ml_systems:'#0D9488', solution_architecture:'#6366F1'};
+let agents = [];
+let selected = new Set();
+let synthData = {};
+let currentTab = 'conflicts';
+let uploadedDocs = [];
+
+async function init() {
+  try {
+    const r = await fetch(`${API}/api/health`);
+    if (!r.ok) throw new Error();
+    document.getElementById('status-text').textContent = 'API connected';
+    document.getElementById('status').classList.remove('error');
+  } catch {
+    document.getElementById('status-text').textContent = 'API unavailable';
+    document.getElementById('status').classList.add('error');
+    return;
+  }
+  try {
+    const r = await fetch(`${API}/api/agents`);
+    const data = await r.json();
+    agents = data.agents;
+    renderPills();
+  } catch {}
+}
+
+function renderPills() {
+  const el = document.getElementById('agent-pills');
+  el.innerHTML = '';
+  agents.forEach(a => {
+    const pill = document.createElement('button');
+    pill.className = 'agent-pill';
+    pill.textContent = a.display_name;
+    pill.style.setProperty('--pill-color', COLORS[a.domain] || '#3b82f6');
+    pill.onclick = () => toggleAgent(a.domain, pill);
+    el.appendChild(pill);
+  });
+}
+
+function toggleAgent(domain, pill) {
+  if (selected.has(domain)) { selected.delete(domain); pill.classList.remove('selected'); }
+  else if (selected.size < 4) { selected.add(domain); pill.classList.add('selected'); }
+  document.getElementById('run-btn').disabled = selected.size < 2;
+}
+
+function loadExample() {
+  const v = document.getElementById('examples').value;
+  if (v) document.getElementById('question').value = v;
+}
+
+async function runPanel() {
+  const q = document.getElementById('question').value.trim();
+  if (!q || selected.size < 2) return;
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Running...';
+
+  document.getElementById('transcript').classList.remove('hidden');
+  document.getElementById('turns').innerHTML = '<div class="loading"><span class="spinner"></span> Panel is debating your question... this takes 30–90 seconds.</div>';
+  document.getElementById('synthesis-section').classList.add('hidden');
+  document.getElementById('meta-bar').classList.add('hidden');
+
+  try {
+    const r = await fetch(`${API}/api/panels/run`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: q, domains: [...selected], turns_per_agent: 2, document_ids: uploadedDocs.map(d => d.id)}),
+    });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'API error'); }
+    const data = await r.json();
+    renderResult(data);
+  } catch (e) {
+    document.getElementById('turns').innerHTML = `<div class="loading" style="color:#ef4444">Error: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run panel →';
+}
+
+function renderResult(data) {
+  const el = document.getElementById('turns');
+  el.innerHTML = '';
+
+  data.turns.forEach((t, i) => {
+    if (t.moderator && i > 0) {
+      const mod = document.createElement('div');
+      mod.className = 'moderator-divider';
+      mod.innerHTML = `<div class="label">Moderator</div><div class="text">${esc(t.moderator.text)}</div>`;
+      el.appendChild(mod);
+    }
+    const card = document.createElement('div');
+    card.className = 'turn-card';
+    card.style.setProperty('--turn-color', COLORS[t.domain] || '#3b82f6');
+    const cites = t.cited_papers.filter(c => c.title).map(c => `${esc(c.title)} (${c.year})`).join(' · ');
+    card.innerHTML = `
+      <div class="turn-header"><span class="name">${esc(t.agent_name)}</span><span class="meta">Turn ${t.turn_number}</span></div>
+      <div class="turn-body"><p>${esc(t.response)}</p></div>
+      ${cites ? `<div class="turn-footer">${cites}</div>` : ''}
+    `;
+    el.appendChild(card);
+  });
+
+  synthData = data.synthesis;
+  document.getElementById('synthesis-section').classList.remove('hidden');
+  switchTab('conflicts');
+
+  const m = data.meta;
+  document.getElementById('meta-bar').classList.remove('hidden');
+  document.getElementById('meta-bar').innerHTML =
+    `<span>Tokens: ${m.total_input_tokens.toLocaleString()} in / ${m.total_output_tokens.toLocaleString()} out</span>` +
+    `<span>Cost: $${m.estimated_cost_usd.toFixed(3)}</span>` +
+    `<span>Duration: ${m.duration_seconds}s</span>`;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.synth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.synth-tab')[['conflicts','agreements','gaps','narrative'].indexOf(tab)].classList.add('active');
+  const el = document.getElementById('synth-content');
+
+  if (tab === 'narrative') {
+    el.innerHTML = `<div style="font-size:0.92rem">${esc(synthData.narrative || 'No narrative generated.')}</div>`;
+  } else {
+    const key = tab === 'gaps' ? 'novelty_gaps' : tab;
+    const items = synthData[key] || [];
+    if (!items.length) { el.innerHTML = '<div style="color:var(--muted)">None identified.</div>'; return; }
+    el.innerHTML = items.map(item => {
+      const text = item.claim || item.description || JSON.stringify(item);
+      return `<div class="synth-item">${esc(text)}</div>`;
+    }).join('');
+  }
+}
+
+async function handleFiles(files) {
+  for (const file of files) {
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const r = await fetch(`${API}/api/documents/upload`, {method:'POST', body: form});
+      if (!r.ok) { const e = await r.json(); alert(e.detail || 'Upload failed'); continue; }
+      const doc = await r.json();
+      uploadedDocs.push(doc);
+      renderUploadedDocs();
+    } catch (e) { alert('Upload failed: ' + e.message); }
+  }
+}
+
+function renderUploadedDocs() {
+  const el = document.getElementById('uploaded-docs');
+  el.innerHTML = uploadedDocs.map((d, i) => `<span style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.6rem;font-size:0.85rem">
+    ${esc(d.filename)} <span style="color:var(--muted)">${(d.char_count/1000).toFixed(1)}k chars</span>
+    <span style="cursor:pointer;color:var(--muted)" onclick="removeDoc(${i})">&times;</span>
+  </span>`).join('');
+}
+
+function removeDoc(i) { uploadedDocs.splice(i, 1); renderUploadedDocs(); }
+
+(function setupDragDrop() {
+  const area = document.getElementById('upload-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.style.borderColor = 'var(--accent)'; });
+  area.addEventListener('dragleave', () => { area.style.borderColor = 'var(--border)'; });
+  area.addEventListener('drop', e => { e.preventDefault(); area.style.borderColor = 'var(--border)'; handleFiles(e.dataTransfer.files); });
+})();
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+init();
+</script>
+</body>
+</html>
