@@ -239,6 +239,7 @@ sentence-transformers
 pdfplumber
 rank-bm25
 httpx
+defusedxml
 ```
 
 ---
