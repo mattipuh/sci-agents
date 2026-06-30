@@ -5,6 +5,8 @@ from pathlib import Path
 
 import anthropic
 
+from corpus.retriever import Retriever
+
 log = logging.getLogger(__name__)
 
 
@@ -55,6 +57,21 @@ DOMAIN_SEARCH_SCOPES = {
 PERSONAS_DIR = Path(__file__).parent / "personas"
 
 
+def _format_chunks(chunks: list) -> str:
+    lines = ["[CONTEXT — retrieved literature]\n"]
+    for i, chunk in enumerate(chunks, 1):
+        authors_str = ", ".join(chunk.authors[:2])
+        if len(chunk.authors) > 2:
+            authors_str += " et al."
+        lines.append(
+            f"[{i}] {authors_str} ({chunk.year}) — \"{chunk.title}\"\n"
+            f"Source: {chunk.source_url} | Section: {chunk.section}"
+            + (f" | {chunk.journal}" if chunk.journal else "")
+            + f"\n\"{chunk.text}\"\n"
+        )
+    return "\n".join(lines)
+
+
 @dataclass
 class AgentTurn:
     domain: str
@@ -67,7 +84,8 @@ class AgentTurn:
 
 
 class DomainAgent:
-    def __init__(self, domain: str, client: anthropic.Anthropic, model: str = "claude-sonnet-4-6"):
+    def __init__(self, domain: str, client: anthropic.Anthropic, model: str = "claude-sonnet-4-6",
+                 retriever: Retriever | None = None):
         if domain not in AVAILABLE_DOMAINS:
             raise ValueError(f"Unknown domain: {domain}. Choose from {AVAILABLE_DOMAINS}")
         self.domain = domain
@@ -75,6 +93,7 @@ class DomainAgent:
         self.model = model
         self.display_name = AGENT_DISPLAY_NAMES[domain]
         self._persona = self._load_persona()
+        self._retriever = retriever
 
     def _load_persona(self) -> str:
         base = (PERSONAS_DIR / "_base.txt").read_text()
@@ -83,8 +102,6 @@ class DomainAgent:
         return f"{base}\n\n{overlay}"
 
     def respond(self, question: str, prior_turns: list[AgentTurn], reference_docs: list[dict] | None = None, company_context: dict | None = None) -> AgentTurn:
-        scope = DOMAIN_SEARCH_SCOPES.get(self.domain, "site:arxiv.org")
-
         prior_context = ""
         if prior_turns:
             prior_context = "\n\nPrevious agent responses:\n"
@@ -117,32 +134,70 @@ class DomainAgent:
                 text = doc["text"][:15000]
                 docs_context += f"\n--- {doc['filename']} ---\n{text}\n"
 
-        user_message = f"""Research question: {question}
+        # Try retriever first; fall back to web_search if <3 chunks
+        context_block = ""
+        use_web_search = True
+        if self._retriever is not None:
+            try:
+                chunks = self._retriever.retrieve(
+                    query=question, domain=self.domain, top_k=8
+                )
+                if len(chunks) >= 3:
+                    context_block = _format_chunks(chunks)
+                    use_web_search = False
+            except Exception as exc:
+                log.warning("Retriever failed for %s, falling back to web search: %s",
+                            self.domain, exc)
+
+        scope = DOMAIN_SEARCH_SCOPES.get(self.domain, "site:arxiv.org")
+
+        json_schema = """{
+  "content": "Your substantive response (200-400 words, flowing paragraphs, inline [Author, Year] citations)",
+  "citations": [
+    {"title": "Paper title", "year": 2023, "url": "https://...", "doi": "10.xxx/xxx"}
+  ],
+  "confidence": 0.8,
+  "dissent": "If you disagree with a prior agent, state it here. Otherwise null."
+}"""
+
+        if context_block:
+            user_message = f"""Research question: {question}
+{prior_context}{company_context_str}{docs_context}
+
+{context_block}
+
+Provide your expert response grounded in the retrieved literature above.
+
+Your response MUST follow this exact JSON structure:
+{json_schema}
+
+Provide ONLY the JSON object, no other text."""
+
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4096,
+                system=self._persona,
+                messages=[{"role": "user", "content": user_message}],
+            )
+        else:
+            user_message = f"""Research question: {question}
 {prior_context}{company_context_str}{docs_context}
 
 Search for relevant literature using the web search tool (scoped to {self.domain} literature: {scope}).
 Then provide your expert response.
 
 Your response MUST follow this exact JSON structure:
-{{
-  "content": "Your substantive response (200-400 words, flowing paragraphs, inline [Author, Year] citations)",
-  "citations": [
-    {{"title": "Paper title", "year": 2023, "url": "https://...", "doi": "10.xxx/xxx"}},
-    {{"title": "Paper title", "year": 2021, "url": "https://...", "doi": ""}}
-  ],
-  "confidence": 0.8,
-  "dissent": "If you disagree with a prior agent, state it here. Otherwise null."
-}}
+{json_schema}
 
 Provide ONLY the JSON object, no other text."""
 
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=4096,
-            system=self._persona,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
-            messages=[{"role": "user", "content": user_message}],
-        )
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4096,
+                system=self._persona,
+                tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
+                messages=[{"role": "user", "content": user_message}],
+            )
 
         usage = {"input_tokens": response.usage.input_tokens, "output_tokens": response.usage.output_tokens}
 
