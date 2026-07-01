@@ -1,5 +1,4 @@
 import time
-from urllib.parse import quote_plus
 
 import defusedxml.ElementTree as ET
 import httpx
@@ -23,12 +22,11 @@ _BASE = "https://export.arxiv.org/api/query"
 def search(query: str, domain: str, max_results: int = 10) -> list[dict]:
     categories = ARXIV_CATEGORIES.get(domain, ["cs.AI"])
     cat_filter = " OR ".join(f"cat:{c}" for c in categories)
-    q = f"({quote_plus(query)}) AND ({quote_plus(cat_filter)})"
-    url = f"{_BASE}?search_query={q}&max_results={max_results}&sortBy=relevance"
+    raw_q = f"({query}) AND ({cat_filter})"
 
     for attempt in range(3):
         try:
-            resp = httpx.get(url, timeout=15.0)
+            resp = httpx.get(_BASE, params={"search_query": raw_q, "max_results": max_results, "sortBy": "relevance"}, timeout=15.0)
             resp.raise_for_status()
             return _parse(resp.text)
         except Exception:

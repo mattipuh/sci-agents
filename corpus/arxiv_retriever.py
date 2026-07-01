@@ -51,22 +51,23 @@ class ArxivRetriever(Retriever):
     def _ingest(self, paper: dict, domain: str) -> None:
         arxiv_id = paper["arxiv_id"]
         pdf_path = fetch_pdf(arxiv_id, paper["pdf_url"])
-        if pdf_path:
-            chunks = chunk_pdf(
-                pdf_path=pdf_path, arxiv_id=arxiv_id,
-                title=paper["title"], authors=paper["authors"],
-                year=paper["year"], source_url=paper["source_url"],
-            )
-        else:
-            chunks = []
+        if pdf_path is None:
+            log.warning("Could not fetch PDF for %s — skipping ingest", arxiv_id)
+            return
 
-        if chunks:
-            embeddings = embed_documents([c.text for c in chunks])
-            self._vector_store.upsert(domain, chunks, embeddings)
-            self._bm25.add_chunks(domain, chunks)
-            self._bm25.save(domain)
-        else:
-            log.warning("No chunks for %s — storing abstract only", arxiv_id)
+        chunks = chunk_pdf(
+            pdf_path=pdf_path, arxiv_id=arxiv_id,
+            title=paper["title"], authors=paper["authors"],
+            year=paper["year"], source_url=paper["source_url"],
+        )
+        if not chunks:
+            log.warning("No chunks produced for %s — skipping ingest", arxiv_id)
+            return
+
+        embeddings = embed_documents([c.text for c in chunks])
+        self._vector_store.upsert(domain, chunks, embeddings)
+        self._bm25.add_chunks(domain, chunks)
+        self._bm25.save(domain)
 
         quality = _fetch_quality_metadata(arxiv_id)
         self._cache.mark_indexed(

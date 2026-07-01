@@ -44,8 +44,9 @@ def test_search_parses_paper_fields():
 def test_search_uses_domain_categories():
     with patch("httpx.get", return_value=_mock_response("<feed/>")) as mock_get:
         search("transformers", "ai_ml_systems")
-    url = mock_get.call_args[0][0]
-    assert "cs.AI" in url or "cs.LG" in url
+    params = mock_get.call_args[1]["params"]
+    search_query = params["search_query"]
+    assert "cs.AI" in search_query or "cs.LG" in search_query
 
 
 def test_search_handles_empty_feed():

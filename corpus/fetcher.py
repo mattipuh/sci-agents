@@ -22,6 +22,14 @@ def fetch_pdf(arxiv_id: str, pdf_url: str,
             resp.raise_for_status()
             with open(dest, "wb") as f:
                 f.write(resp.content)
+            with open(dest, "rb") as f:
+                magic = f.read(4)
+            if magic != b"%PDF":
+                os.remove(dest)
+                log.warning("Downloaded file for %s is not a PDF (got %r), discarding", arxiv_id, magic)
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
+                continue
             return dest
         except Exception as exc:
             log.warning("PDF download attempt %d failed for %s: %s",

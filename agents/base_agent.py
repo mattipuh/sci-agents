@@ -136,7 +136,6 @@ class DomainAgent:
 
         # Try retriever first; fall back to web_search if <3 chunks
         context_block = ""
-        use_web_search = True
         if self._retriever is not None:
             try:
                 chunks = self._retriever.retrieve(
@@ -144,7 +143,6 @@ class DomainAgent:
                 )
                 if len(chunks) >= 3:
                     context_block = _format_chunks(chunks)
-                    use_web_search = False
             except Exception as exc:
                 log.warning("Retriever failed for %s, falling back to web search: %s",
                             self.domain, exc)
