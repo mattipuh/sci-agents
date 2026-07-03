@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from agents.base_agent import AVAILABLE_DOMAINS, AGENT_DISPLAY_NAMES
 from api.documents import store_document, get_documents
@@ -45,6 +45,16 @@ class CitedPaper(BaseModel):
     year: int = 0
     url: str = ""
     doi: str = ""
+
+    @field_validator("title", "url", "doi", mode="before")
+    @classmethod
+    def _null_to_empty_str(cls, v):
+        return v or ""
+
+    @field_validator("year", mode="before")
+    @classmethod
+    def _null_to_zero(cls, v):
+        return v or 0
 
 
 class TurnResponse(BaseModel):
@@ -134,7 +144,10 @@ def run_panel(req: PanelRunRequest):
     )
 
     start = time.time()
-    result = composer.run(config)
+    try:
+        result = composer.run(config)
+    except anthropic.APIError as e:
+        raise HTTPException(502, f"LLM API error: {e.message}")
     duration = time.time() - start
 
     cost = (result.token_usage["input_tokens"] * 3 + result.token_usage["output_tokens"] * 15) / 1_000_000
