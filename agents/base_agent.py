@@ -16,6 +16,7 @@ AVAILABLE_DOMAINS = [
     "ai_ml_systems", "solution_architecture",
     "entrepreneurship_validation", "consumer_market_research", "gtm_growth",
     "org_scaling", "venture_finance", "platform_business_model",
+    "exercise_physiology", "sports_medicine",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -34,6 +35,8 @@ AGENT_DISPLAY_NAMES = {
     "org_scaling": "Dr. Hämäläinen (Organizational Scaling)",
     "venture_finance": "Prof. Karjalainen (Venture Finance)",
     "platform_business_model": "Dr. Väisänen (Platform & Business Model)",
+    "exercise_physiology": "Prof. Lindqvist (Exercise Physiology)",
+    "sports_medicine": "Dr. Aaltonen (Sports Medicine)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -52,6 +55,8 @@ DOMAIN_SEARCH_SCOPES = {
     "org_scaling": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
     "venture_finance": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/q-fin",
     "platform_business_model": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
+    "exercise_physiology": "site:pubmed.ncbi.nlm.nih.gov OR site:journals.physiology.org OR site:journals.humankinetics.com OR site:link.springer.com",
+    "sports_medicine": "site:pubmed.ncbi.nlm.nih.gov OR site:bjsm.bmj.com OR site:link.springer.com",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
