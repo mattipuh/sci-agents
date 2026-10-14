@@ -19,6 +19,7 @@ AVAILABLE_DOMAINS = [
     "exercise_physiology", "sports_medicine",
     "floating_sauna_construction", "singapore_building_regulation",
     "tropical_building_services", "sauna_health_safety",
+    "singapore_premium_market",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -43,6 +44,7 @@ AGENT_DISPLAY_NAMES = {
     "singapore_building_regulation": "Dr. Lim (Singapore Building & Marine Regulation)",
     "tropical_building_services": "Dr. Peltonen (Tropical Building Services & Energy)",
     "sauna_health_safety": "Dr. Kettunen (Thermal Bathing Health & Safety)",
+    "singapore_premium_market": "Ms. Tan (Singapore Premium Market)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -67,6 +69,7 @@ DOMAIN_SEARCH_SCOPES = {
     "singapore_building_regulation": "site:sso.agc.gov.sg OR site:ura.gov.sg OR site:bca.gov.sg OR site:scdf.gov.sg OR site:mpa.gov.sg OR site:sla.gov.sg OR site:pub.gov.sg OR site:nea.gov.sg OR site:sfa.gov.sg",
     "tropical_building_services": "site:sciencedirect.com OR site:mdpi.com OR site:ashrae.org OR site:bca.gov.sg",
     "sauna_health_safety": "site:pubmed.ncbi.nlm.nih.gov OR site:who.int OR site:nea.gov.sg OR site:link.springer.com",
+    "singapore_premium_market": "site:singstat.gov.sg OR site:mas.gov.sg OR site:edb.gov.sg OR site:ura.gov.sg OR site:businesstimes.com.sg OR site:straitstimes.com",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
