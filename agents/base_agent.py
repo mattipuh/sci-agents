@@ -17,6 +17,8 @@ AVAILABLE_DOMAINS = [
     "entrepreneurship_validation", "consumer_market_research", "gtm_growth",
     "org_scaling", "venture_finance", "platform_business_model",
     "exercise_physiology", "sports_medicine",
+    "floating_sauna_construction", "singapore_building_regulation",
+    "tropical_building_services", "sauna_health_safety",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -37,6 +39,10 @@ AGENT_DISPLAY_NAMES = {
     "platform_business_model": "Dr. Väisänen (Platform & Business Model)",
     "exercise_physiology": "Prof. Lindqvist (Exercise Physiology)",
     "sports_medicine": "Dr. Aaltonen (Sports Medicine)",
+    "floating_sauna_construction": "Prof. Saarinen (Floating & Sauna Construction)",
+    "singapore_building_regulation": "Dr. Lim (Singapore Building & Marine Regulation)",
+    "tropical_building_services": "Dr. Peltonen (Tropical Building Services & Energy)",
+    "sauna_health_safety": "Dr. Kettunen (Thermal Bathing Health & Safety)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -57,6 +63,10 @@ DOMAIN_SEARCH_SCOPES = {
     "platform_business_model": "site:ssrn.com OR site:nber.org OR site:arxiv.org/abs/econ",
     "exercise_physiology": "site:pubmed.ncbi.nlm.nih.gov OR site:journals.physiology.org OR site:journals.humankinetics.com OR site:link.springer.com",
     "sports_medicine": "site:pubmed.ncbi.nlm.nih.gov OR site:bjsm.bmj.com OR site:link.springer.com",
+    "floating_sauna_construction": "site:sciencedirect.com OR site:link.springer.com OR site:ascelibrary.org OR site:mdpi.com OR site:dnv.com",
+    "singapore_building_regulation": "site:sso.agc.gov.sg OR site:ura.gov.sg OR site:bca.gov.sg OR site:scdf.gov.sg OR site:mpa.gov.sg OR site:sla.gov.sg OR site:pub.gov.sg OR site:nea.gov.sg OR site:sfa.gov.sg",
+    "tropical_building_services": "site:sciencedirect.com OR site:mdpi.com OR site:ashrae.org OR site:bca.gov.sg",
+    "sauna_health_safety": "site:pubmed.ncbi.nlm.nih.gov OR site:who.int OR site:nea.gov.sg OR site:link.springer.com",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
