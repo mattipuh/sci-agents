@@ -71,7 +71,7 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 
 ---
 
-## The 15 expert personas
+## The 22 expert personas
 
 ### Science & Engineering
 | Domain | Agent | Expertise |
@@ -99,6 +99,21 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 | `org_scaling` | Dr. Hämäläinen | Founder-to-CEO transition, high-growth HR, culture at scale |
 | `venture_finance` | Prof. Karjalainen | Unit economics, funding dynamics, cap table, VC power law |
 | `platform_business_model` | Dr. Väisänen | Network effects, platform economics, pricing strategy |
+
+### Sports Science
+| Domain | Agent | Expertise |
+|---|---|---|
+| `exercise_physiology` | Prof. Lindqvist | Endurance cycling, training intensity distribution, HIIT, power-based load models |
+| `sports_medicine` | Dr. Aaltonen | Return to training after illness, overtraining, RED-S, masters athlete injury risk |
+
+### Wellness Venues & Singapore
+| Domain | Agent | Expertise |
+|---|---|---|
+| `floating_sauna_construction` | Prof. Saarinen | Floating and over-water structures, sauna heaters, ventilation, vapour control |
+| `singapore_building_regulation` | Dr. Lim | Singapore planning, building and marine approvals, including structures over water |
+| `tropical_building_services` | Dr. Peltonen | Tropical HVAC, heat pumps and recovery, IAQ, energy for wet-area leisure buildings |
+| `sauna_health_safety` | Dr. Kettunen | Sauna and cold-plunge physiology, bathing water hygiene, drowning prevention |
+| `singapore_premium_market` | Ms. Tan | Singapore luxury, wellness and private club spend, corporate amenity buying |
 
 ---
 
