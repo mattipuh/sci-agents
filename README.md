@@ -71,7 +71,7 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 
 ---
 
-## The 22 expert personas
+## The 23 expert personas
 
 ### Science & Engineering
 | Domain | Agent | Expertise |
@@ -89,6 +89,7 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 | `lean_process` | Dr. Rantanen | Toyota Production System, Theory of Constraints, flow |
 | `business_economics` | Prof. Salminen | Transaction costs, value creation/capture, org design |
 | `finance` | Dr. Lehtinen | Financial system design, risk, regulatory economics |
+| `decision_science` | Prof. Heinonen | Problem formulation, managerial decision making, goal-setting theory |
 
 ### Startup & Scaleup
 | Domain | Agent | Expertise |

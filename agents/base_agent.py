@@ -20,6 +20,7 @@ AVAILABLE_DOMAINS = [
     "floating_sauna_construction", "singapore_building_regulation",
     "tropical_building_services", "sauna_health_safety",
     "singapore_premium_market",
+    "decision_science",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -45,6 +46,7 @@ AGENT_DISPLAY_NAMES = {
     "tropical_building_services": "Dr. Peltonen (Tropical Building Services & Energy)",
     "sauna_health_safety": "Dr. Kettunen (Thermal Bathing Health & Safety)",
     "singapore_premium_market": "Ms. Tan (Singapore Premium Market)",
+    "decision_science": "Prof. Heinonen (Decision Science & Goal Setting)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -70,6 +72,7 @@ DOMAIN_SEARCH_SCOPES = {
     "tropical_building_services": "site:sciencedirect.com OR site:mdpi.com OR site:ashrae.org OR site:bca.gov.sg",
     "sauna_health_safety": "site:pubmed.ncbi.nlm.nih.gov OR site:who.int OR site:nea.gov.sg OR site:link.springer.com",
     "singapore_premium_market": "site:singstat.gov.sg OR site:mas.gov.sg OR site:edb.gov.sg OR site:ura.gov.sg OR site:businesstimes.com.sg OR site:straitstimes.com",
+    "decision_science": "site:ssrn.com OR site:hbs.edu OR site:pubsonline.informs.org OR site:journals.aom.org OR site:sciencedirect.com",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
