@@ -71,7 +71,7 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 
 ---
 
-## The 23 expert personas
+## The 27 expert personas
 
 ### Science & Engineering
 | Domain | Agent | Expertise |
@@ -90,6 +90,14 @@ Each agent turn costs roughly $0.013 (Sonnet input + output + web search). A 3-a
 | `business_economics` | Prof. Salminen | Transaction costs, value creation/capture, org design |
 | `finance` | Dr. Lehtinen | Financial system design, risk, regulatory economics |
 | `decision_science` | Prof. Heinonen | Problem formulation, managerial decision making, goal-setting theory |
+
+### IT Services & AI Transformation
+| Domain | Agent | Expertise |
+|---|---|---|
+| `nordic_it_services_market` | Dr. Lindholm | Nordic and Finnish IT services and MSP market, PE roll-ups, SME IT buying and AI adoption |
+| `eu_ai_regulation` | Dr. Rautio | EU AI Act, GDPR, NIS2, data residency, Finnish supervision |
+| `it_service_management` | Prof. Halonen | ITIL 4, service desk economics, KCS, AIOps and agentic L1/L2 automation evidence |
+| `ai_workforce_change` | Prof. Kivelä | Task-level AI effects on jobs and skills, reskilling, adoption and change management |
 
 ### Startup & Scaleup
 | Domain | Agent | Expertise |
