@@ -20,6 +20,9 @@ AVAILABLE_DOMAINS = [
     "floating_sauna_construction", "singapore_building_regulation",
     "tropical_building_services", "sauna_health_safety",
     "singapore_premium_market",
+    "decision_science",
+    "nordic_it_services_market", "eu_ai_regulation",
+    "it_service_management", "ai_workforce_change",
 ]
 
 AGENT_DISPLAY_NAMES = {
@@ -45,6 +48,11 @@ AGENT_DISPLAY_NAMES = {
     "tropical_building_services": "Dr. Peltonen (Tropical Building Services & Energy)",
     "sauna_health_safety": "Dr. Kettunen (Thermal Bathing Health & Safety)",
     "singapore_premium_market": "Ms. Tan (Singapore Premium Market)",
+    "decision_science": "Prof. Heinonen (Decision Science & Goal Setting)",
+    "nordic_it_services_market": "Dr. Lindholm (Nordic IT Services & AI Market)",
+    "eu_ai_regulation": "Dr. Rautio (EU AI & Digital Regulation)",
+    "it_service_management": "Prof. Halonen (IT Service Management & AIOps)",
+    "ai_workforce_change": "Prof. Kivelä (AI, Work & Organisational Change)",
 }
 
 DOMAIN_SEARCH_SCOPES = {
@@ -70,6 +78,11 @@ DOMAIN_SEARCH_SCOPES = {
     "tropical_building_services": "site:sciencedirect.com OR site:mdpi.com OR site:ashrae.org OR site:bca.gov.sg",
     "sauna_health_safety": "site:pubmed.ncbi.nlm.nih.gov OR site:who.int OR site:nea.gov.sg OR site:link.springer.com",
     "singapore_premium_market": "site:singstat.gov.sg OR site:mas.gov.sg OR site:edb.gov.sg OR site:ura.gov.sg OR site:businesstimes.com.sg OR site:straitstimes.com",
+    "decision_science": "site:ssrn.com OR site:hbs.edu OR site:pubsonline.informs.org OR site:journals.aom.org OR site:sciencedirect.com",
+    "nordic_it_services_market": "site:stat.fi OR site:inderes.fi OR site:kauppalehti.fi OR site:tivi.fi OR site:businessfinland.fi OR site:tem.fi OR site:traficom.fi OR site:ec.europa.eu/eurostat OR site:digital-strategy.ec.europa.eu",
+    "eu_ai_regulation": "site:eur-lex.europa.eu OR site:digital-strategy.ec.europa.eu OR site:edpb.europa.eu OR site:finlex.fi OR site:traficom.fi OR site:tietosuoja.fi",
+    "it_service_management": "site:ieeexplore.ieee.org OR site:acm.org OR site:sciencedirect.com OR site:arxiv.org/abs/cs.SE OR site:hdi.global OR site:axelos.com",
+    "ai_workforce_change": "site:ssrn.com OR site:nber.org OR site:oecd.org OR site:eurofound.europa.eu OR site:hbr.org",
 }
 
 PERSONAS_DIR = Path(__file__).parent / "personas"
